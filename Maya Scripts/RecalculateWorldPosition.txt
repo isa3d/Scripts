@@ -1,0 +1,37 @@
+# This script recalculates the world position of the frozen object.
+
+import maya.cmds as cmds
+
+def set_frozen_object_to_world_space_pivot():
+    # Get the currently selected object
+    selection = cmds.ls(selection=True)
+
+    if not selection:
+        print("No object selected. Please select an object.")
+        return
+
+    selected_object = selection[0]
+
+    # Query the pivot point position of the selected object
+    pivot_position = cmds.xform(selected_object, query=True, ws=True, rp=True)
+
+    # Create a locator and move it to the pivot position
+    locator_name = cmds.spaceLocator()[0]
+    cmds.move(pivot_position[0], pivot_position[1], pivot_position[2], locator_name)
+
+    # Parent the object to the locator
+    cmds.parent(selected_object, locator_name)
+
+    # Freeze transformations on the object to make the locator's transform its new zero
+    cmds.makeIdentity(selected_object, apply=True, translate=True, rotate=True, scale=True)
+
+    # Unparent the object, moving it to world space
+    cmds.parent(selected_object, world=True)
+
+    # Optionally, delete the locator if it's no longer needed
+    cmds.delete(locator_name)
+
+    print(f"Set {selected_object} to exact pivot position in world space: {pivot_position}")
+
+# Run the function
+set_frozen_object_to_world_space_pivot()

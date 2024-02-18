@@ -1,0 +1,31 @@
+# This script aligns the normals of one vertex to match another vertex's normal.
+
+import maya.cmds as cmds
+
+def set_vertex_normal_from_to():
+    # Get the current selection assuming the first two selected items are vertices
+    selection = cmds.ls(selection=True, fl=True)
+    
+    if len(selection) != 2:
+        cmds.error("Please select exactly two vertices.")
+        return
+
+    # Source (to copy normal from) and target (to apply normal to) vertices
+    source_vertex = selection[1]
+    target_vertex = selection[0]
+
+    # Get the normal of the source vertex
+    source_normal = cmds.polyNormalPerVertex(source_vertex, query=True, xyz=True)
+
+    # Check if we successfully retrieved a normal
+    if not source_normal:
+        cmds.error("Could not retrieve the normal for the source vertex.")
+        return
+
+    # Set the normal of the target vertex
+    cmds.polyNormalPerVertex(target_vertex, edit=True, xyz=(source_normal[0], source_normal[1], source_normal[2]))
+
+    print(f"Set the normal of {target_vertex} to match {source_vertex}")
+
+# Execute the function
+set_vertex_normal_from_to()
